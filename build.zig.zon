@@ -1,0 +1,10 @@
+.{
+    .name = .gitgood,
+    .version = "0.0.0",
+    .fingerprint = 0xbd142406aa040dff,
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+    },
+}
