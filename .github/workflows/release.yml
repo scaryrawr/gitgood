@@ -1,0 +1,104 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Package ${{ matrix.target.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - name: linux-x64
+            triple: x86_64-linux
+            platform: linux-x64
+            exe_ext: ""
+            archive_ext: tar.gz
+          - name: linux-arm64
+            triple: aarch64-linux
+            platform: linux-arm64
+            exe_ext: ""
+            archive_ext: tar.gz
+          - name: windows-x64
+            triple: x86_64-windows
+            platform: windows-x64
+            exe_ext: .exe
+            archive_ext: zip
+          - name: windows-arm64
+            triple: aarch64-windows
+            platform: windows-arm64
+            exe_ext: .exe
+            archive_ext: zip
+          - name: macos-arm64
+            triple: aarch64-macos
+            platform: macos-arm64
+            exe_ext: ""
+            archive_ext: tar.gz
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Zig
+        uses: mlugg/setup-zig@v2
+        with:
+          version: 0.15.2
+
+      - name: Build and package
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="${GITHUB_REF_NAME}"
+          artifact="gitgood-${version}-${{ matrix.target.platform }}"
+          stage_dir="dist/${artifact}"
+
+          zig build -Dtarget=${{ matrix.target.triple }} -Doptimize=ReleaseSafe
+          mkdir -p "${stage_dir}"
+          cp "zig-out/bin/gitgood${{ matrix.target.exe_ext }}" "${stage_dir}/gitgood${{ matrix.target.exe_ext }}"
+
+          if [ "${{ matrix.target.archive_ext }}" = "zip" ]; then
+            (cd dist && zip -r "${artifact}.zip" "${artifact}")
+          else
+            tar -C dist -czf "dist/${artifact}.tar.gz" "${artifact}"
+          fi
+
+      - name: Upload packaged artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target.platform }}
+          path: |
+            dist/*.tar.gz
+            dist/*.zip
+          if-no-files-found: error
+
+  release:
+    name: Publish release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download packaged artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Generate checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd dist
+          sha256sum *.tar.gz *.zip > "gitgood-${GITHUB_REF_NAME}-sha256.txt"
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*.tar.gz
+            dist/*.zip
+            dist/gitgood-${{ github.ref_name }}-sha256.txt

@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Zig
+        uses: mlugg/setup-zig@v2
+        with:
+          version: 0.15.2
+
+      - name: Run tests
+        run: zig build test
+
+  build:
+    name: Build ${{ matrix.target.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - name: linux-x64
+            triple: x86_64-linux
+          - name: linux-arm64
+            triple: aarch64-linux
+          - name: windows-x64
+            triple: x86_64-windows
+          - name: windows-arm64
+            triple: aarch64-windows
+          - name: macos-arm64
+            triple: aarch64-macos
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Zig
+        uses: mlugg/setup-zig@v2
+        with:
+          version: 0.15.2
+
+      - name: Build target
+        run: zig build -Dtarget=${{ matrix.target.triple }} -Doptimize=ReleaseSafe
