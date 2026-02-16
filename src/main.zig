@@ -104,7 +104,7 @@ fn commandHelpText(topic: HelpTopic) []const u8 {
         .diff =>
         \\Usage: gitgood diff <LOCAL> <REMOTE>
         \\
-        \\Open a visual diff for LOCAL and REMOTE.
+        \\Open a VS Code visual diff, or run git diff in standalone terminals.
         \\
         ,
         .merge =>
