@@ -11,9 +11,9 @@ const builtin = @import("builtin");
 /// `argv` is a slice of argument strings where `argv[0]` is the executable name/path.
 /// Uses PATH resolution via the underlying implementation.
 /// On POSIX this replaces the current process, and on Windows it spawns and waits.
-pub fn execOrExit(argv: []const []const u8) noreturn {
+pub fn execOrExit(allocator: std.mem.Allocator, argv: []const []const u8) noreturn {
     if (builtin.os.tag == .windows) {
-        var child = std.process.Child.init(argv, std.heap.page_allocator);
+        var child = std.process.Child.init(argv, allocator);
         child.stdin_behavior = .Inherit;
         child.stdout_behavior = .Inherit;
         child.stderr_behavior = .Inherit;
@@ -24,7 +24,7 @@ pub fn execOrExit(argv: []const []const u8) noreturn {
         }
     }
 
-    const err = std.process.execv(std.heap.page_allocator, argv);
+    const err = std.process.execv(allocator, argv);
     fatal("exec failed: {s}", .{@errorName(err)});
 }
 

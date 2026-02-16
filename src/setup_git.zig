@@ -26,41 +26,41 @@ pub fn run(args: []const []const u8) noreturn {
         exec_mod.fatal("usage: gitgood setup-git", .{});
     }
 
-    const summary = setupGlobalGitConfig();
+    const summary = setupGlobalGitConfig(std.heap.page_allocator);
     printSummary(summary);
     std.process.exit(0);
 }
 
-fn setupGlobalGitConfig() Summary {
-    setGlobalConfig("core.editor", CORE_EDITOR_VALUE);
-    setGlobalConfig("diff.tool", DIFF_TOOL_VALUE);
-    setGlobalConfig("merge.tool", MERGE_TOOL_VALUE);
+fn setupGlobalGitConfig(allocator: std.mem.Allocator) Summary {
+    setGlobalConfig(allocator, "core.editor", CORE_EDITOR_VALUE);
+    setGlobalConfig(allocator, "diff.tool", DIFF_TOOL_VALUE);
+    setGlobalConfig(allocator, "merge.tool", MERGE_TOOL_VALUE);
 
     var summary: Summary = .{};
 
-    if (!hasGlobalConfig("difftool.gitgood.cmd")) {
-        setGlobalConfig("difftool.gitgood.cmd", DIFFTOOL_GITGOOD_CMD);
+    if (!hasGlobalConfig(allocator, "difftool.gitgood.cmd")) {
+        setGlobalConfig(allocator, "difftool.gitgood.cmd", DIFFTOOL_GITGOOD_CMD);
         summary.created_difftool_cmd = true;
     }
 
-    if (!hasGlobalConfig("mergetool.gitgood.cmd")) {
-        setGlobalConfig("mergetool.gitgood.cmd", MERGETOOL_GITGOOD_CMD);
+    if (!hasGlobalConfig(allocator, "mergetool.gitgood.cmd")) {
+        setGlobalConfig(allocator, "mergetool.gitgood.cmd", MERGETOOL_GITGOOD_CMD);
         summary.created_mergetool_cmd = true;
     }
 
     return summary;
 }
 
-fn setGlobalConfig(key: []const u8, value: []const u8) void {
+fn setGlobalConfig(allocator: std.mem.Allocator, key: []const u8, value: []const u8) void {
     var argv_buf: [5][]const u8 = undefined;
     const argv = buildSetArgv(key, value, &argv_buf);
-    ensureGitSuccess(argv, "setting", key);
+    ensureGitSuccess(allocator, argv, "setting", key);
 }
 
-fn hasGlobalConfig(key: []const u8) bool {
+fn hasGlobalConfig(allocator: std.mem.Allocator, key: []const u8) bool {
     var argv_buf: [5][]const u8 = undefined;
     const argv = buildGetArgv(key, &argv_buf);
-    const term = runGit(argv);
+    const term = runGit(allocator, argv);
     return switch (term) {
         .Exited => |code| switch (code) {
             0 => true,
@@ -71,8 +71,8 @@ fn hasGlobalConfig(key: []const u8) bool {
     };
 }
 
-fn ensureGitSuccess(argv: []const []const u8, action: []const u8, key: []const u8) void {
-    const term = runGit(argv);
+fn ensureGitSuccess(allocator: std.mem.Allocator, argv: []const []const u8, action: []const u8, key: []const u8) void {
+    const term = runGit(allocator, argv);
     switch (term) {
         .Exited => |code| {
             if (code != 0) {
@@ -83,8 +83,8 @@ fn ensureGitSuccess(argv: []const []const u8, action: []const u8, key: []const u
     }
 }
 
-fn runGit(argv: []const []const u8) std.process.Child.Term {
-    var child = std.process.Child.init(argv, std.heap.page_allocator);
+fn runGit(allocator: std.mem.Allocator, argv: []const []const u8) std.process.Child.Term {
+    var child = std.process.Child.init(argv, allocator);
     child.stdin_behavior = .Ignore;
     child.stdout_behavior = .Ignore;
     child.stderr_behavior = .Ignore;

@@ -21,14 +21,13 @@ pub const Terminal = enum {
 ///
 /// The `"vscode-insiders"` check is kept as a fast-path in case a
 /// future VS Code release starts setting a distinct value.
-pub fn detectTerminal() Terminal {
-    const allocator = std.heap.page_allocator;
+pub fn detectTerminal(allocator: std.mem.Allocator) Terminal {
     const term_program = std.process.getEnvVarOwned(allocator, "TERM_PROGRAM") catch return .standalone;
     defer allocator.free(term_program);
 
     if (std.mem.eql(u8, term_program, "vscode-insiders")) return .vscode_insiders;
     if (std.mem.eql(u8, term_program, "vscode")) {
-        return if (isExecutableOnPath("code-insiders")) .vscode_insiders else .vscode;
+        return if (isExecutableOnPath(allocator, "code-insiders")) .vscode_insiders else .vscode;
     }
 
     return .standalone;
@@ -36,8 +35,7 @@ pub fn detectTerminal() Terminal {
 
 /// Checks whether an executable with the given `name` exists in any
 /// directory listed in the `PATH` environment variable.
-pub fn isExecutableOnPath(name: []const u8) bool {
-    const allocator = std.heap.page_allocator;
+pub fn isExecutableOnPath(allocator: std.mem.Allocator, name: []const u8) bool {
     const path_env = std.process.getEnvVarOwned(allocator, "PATH") catch return false;
     defer allocator.free(path_env);
 
@@ -94,9 +92,9 @@ test "resolveEditor returns a non-empty string" {
 
 test "isExecutableOnPath finds a known executable" {
     // "zig" must be on PATH for us to be running this test.
-    try std.testing.expect(isExecutableOnPath("zig"));
+    try std.testing.expect(isExecutableOnPath(std.testing.allocator, "zig"));
 }
 
 test "isExecutableOnPath returns false for a nonsense name" {
-    try std.testing.expect(!isExecutableOnPath("this-executable-definitely-does-not-exist-xyz"));
+    try std.testing.expect(!isExecutableOnPath(std.testing.allocator, "this-executable-definitely-does-not-exist-xyz"));
 }

@@ -23,9 +23,9 @@ pub fn run(args: []const []const u8) noreturn {
     const remote = args[1];
 
     var argv_buf: [7][]const u8 = undefined;
-    const argv = buildArgv(detect.detectTerminal(), local, remote, &argv_buf);
+    const argv = buildArgv(detect.detectTerminal(std.heap.page_allocator), local, remote, &argv_buf);
 
-    exec_mod.execOrExit(argv);
+    exec_mod.execOrExit(std.heap.page_allocator, argv);
 }
 
 fn buildArgv(term: detect.Terminal, local: []const u8, remote: []const u8, argv_buf: *[7][]const u8) []const []const u8 {

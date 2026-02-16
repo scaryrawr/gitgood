@@ -18,7 +18,7 @@ pub fn run(args: []const []const u8) noreturn {
 
     const file = args[0];
 
-    const argv: []const []const u8 = switch (detect.detectTerminal()) {
+    const argv: []const []const u8 = switch (detect.detectTerminal(std.heap.page_allocator)) {
         .vscode => &.{ "code", "--wait", file },
         .vscode_insiders => &.{ "code-insiders", "--wait", file },
         .standalone => blk: {
@@ -29,7 +29,7 @@ pub fn run(args: []const []const u8) noreturn {
         },
     };
 
-    exec_mod.execOrExit(argv);
+    exec_mod.execOrExit(std.heap.page_allocator, argv);
 }
 
 fn printUsage() void {

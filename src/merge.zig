@@ -24,7 +24,7 @@ pub fn run(args: []const []const u8) noreturn {
     const base = args[2];
     const merged = args[3];
 
-    const argv: []const []const u8 = switch (detect.detectTerminal()) {
+    const argv: []const []const u8 = switch (detect.detectTerminal(std.heap.page_allocator)) {
         .vscode => &.{ "code", "--wait", "--merge", remote, local, base, merged },
         .vscode_insiders => &.{ "code-insiders", "--wait", "--merge", remote, local, base, merged },
         .standalone => blk: {
@@ -35,7 +35,7 @@ pub fn run(args: []const []const u8) noreturn {
         },
     };
 
-    exec_mod.execOrExit(argv);
+    exec_mod.execOrExit(std.heap.page_allocator, argv);
 }
 
 fn printUsage() void {
