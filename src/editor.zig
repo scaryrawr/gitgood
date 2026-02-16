@@ -21,11 +21,15 @@ pub fn run(args: []const []const u8) noreturn {
     const argv: []const []const u8 = switch (detect.detectTerminal()) {
         .vscode => &.{ "code", "--wait", file },
         .vscode_insiders => &.{ "code-insiders", "--wait", file },
-        .standalone => &.{ detect.resolveEditor(), file },
+        .standalone => blk: {
+            const editor_cmd = detect.resolveEditor(std.heap.page_allocator) catch |err| {
+                exec_mod.fatal("failed to resolve editor: {s}", .{@errorName(err)});
+            };
+            break :blk &.{ editor_cmd, file };
+        },
     };
 
-    const err = exec_mod.exec(argv);
-    exec_mod.fatal("exec failed: {s}", .{@errorName(err)});
+    exec_mod.execOrExit(argv);
 }
 
 fn printUsage() void {

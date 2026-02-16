@@ -4,17 +4,28 @@
 //! and for reporting fatal errors to stderr.
 
 const std = @import("std");
-
-pub const ExecError = std.process.ExecvError;
+const builtin = @import("builtin");
 
 /// Replaces the current process with the given command.
 ///
 /// `argv` is a slice of argument strings where `argv[0]` is the executable name/path.
-/// Uses PATH resolution via the underlying `execvpe` implementation.
-/// On success, this function never returns (the process is replaced).
-/// On failure, returns an error.
-pub fn exec(argv: []const []const u8) ExecError {
-    return std.process.execv(std.heap.page_allocator, argv);
+/// Uses PATH resolution via the underlying implementation.
+/// On POSIX this replaces the current process, and on Windows it spawns and waits.
+pub fn execOrExit(argv: []const []const u8) noreturn {
+    if (builtin.os.tag == .windows) {
+        var child = std.process.Child.init(argv, std.heap.page_allocator);
+        child.stdin_behavior = .Inherit;
+        child.stdout_behavior = .Inherit;
+        child.stderr_behavior = .Inherit;
+        const term = child.spawnAndWait() catch |err| fatal("exec failed: {s}", .{@errorName(err)});
+        switch (term) {
+            .Exited => |code| std.process.exit(code),
+            else => fatal("process did not exit normally", .{}),
+        }
+    }
+
+    const err = std.process.execv(std.heap.page_allocator, argv);
+    fatal("exec failed: {s}", .{@errorName(err)});
 }
 
 /// Prints a fatal error message to stderr and exits with code 1.
@@ -26,9 +37,4 @@ pub fn fatal(comptime fmt: []const u8, args: anytype) noreturn {
     w.interface.print("gitgood: " ++ fmt ++ "\n", args) catch {};
     w.interface.flush() catch {};
     std.process.exit(1);
-}
-
-test "ExecError is a valid error set" {
-    const E = ExecError;
-    _ = E;
 }

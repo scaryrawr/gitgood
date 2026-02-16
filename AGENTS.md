@@ -12,6 +12,12 @@ zigdoc ghostty-vt.Terminal
 zigdoc vaxis.Window
 ```
 
+## Cross-platform notes
+
+- Avoid `std.posix.*` APIs in code that should compile on Windows unless they’re guarded behind `builtin.os.tag`.
+- For environment variables, prefer `std.process.getEnvVarOwned(allocator, "NAME")` over `std.posix.getenvZ`.
+- When parsing `PATH`, split with `std.fs.path.delimiter` (POSIX `:` vs Windows `;`).
+
 ## Common Zig Patterns
 
 These patterns reflect current Zig APIs and may differ from older documentation.

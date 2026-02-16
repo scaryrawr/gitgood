@@ -25,8 +25,7 @@ pub fn run(args: []const []const u8) noreturn {
     var argv_buf: [7][]const u8 = undefined;
     const argv = buildArgv(detect.detectTerminal(), local, remote, &argv_buf);
 
-    const err = exec_mod.exec(argv);
-    exec_mod.fatal("exec failed: {s}", .{@errorName(err)});
+    exec_mod.execOrExit(argv);
 }
 
 fn buildArgv(term: detect.Terminal, local: []const u8, remote: []const u8, argv_buf: *[7][]const u8) []const []const u8 {

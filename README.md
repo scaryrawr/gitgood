@@ -64,6 +64,8 @@ When you’re not in a VS Code integrated terminal, `gitgood` uses:
 2. `$VISUAL`
 3. `vi` (fallback)
 
+Note: on Windows, this fallback is still `vi`; set `EDITOR` or `VISUAL` if `vi` is not available.
+
 Example:
 
 ```bash
@@ -115,6 +117,8 @@ git config --global --unset mergetool.gitgood.cmd
 - otherwise → standalone mode
 
 If `TERM_PROGRAM=vscode`, it further checks whether `code-insiders` is on `PATH`; if so, it assumes Insiders.
+
+On POSIX, `gitgood` uses process replacement (`exec`); on Windows, it spawns the target process and exits with that child process’s status code.
 
 ### Subcommands
 
