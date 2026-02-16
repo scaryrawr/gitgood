@@ -34,7 +34,7 @@ pub fn execOrExit(allocator: std.mem.Allocator, argv: []const []const u8) noretu
 pub fn fatal(comptime fmt: []const u8, args: anytype) noreturn {
     var buf: [4096]u8 = undefined;
     var w = std.fs.File.stderr().writer(&buf);
-    w.interface.print("gitgood: " ++ fmt ++ "\n", args) catch {};
+    w.interface.print("navigit: " ++ fmt ++ "\n", args) catch {};
     w.interface.flush() catch {};
     std.process.exit(1);
 }

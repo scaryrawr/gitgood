@@ -1,7 +1,7 @@
 .{
-    .name = .gitgood,
+    .name = .navigit,
     .version = "0.0.0",
-    .fingerprint = 0xbd142406aa040dff,
+    .fingerprint = 0x1b3e21b1f2679269,
     .paths = .{
         "build.zig",
         "build.zig.zon",

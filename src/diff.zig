@@ -1,4 +1,4 @@
-//! Diff subcommand for gitgood.
+//! Diff subcommand for navigit.
 //!
 //! Uses VS Code's visual diff in integrated terminals and `git diff`
 //! in standalone terminals.
@@ -48,7 +48,7 @@ fn buildArgv(term: detect.Terminal, local: []const u8, remote: []const u8, argv_
 fn printUsage() void {
     var buf: [4096]u8 = undefined;
     var w = std.fs.File.stdout().writer(&buf);
-    w.interface.print("usage: gitgood diff <LOCAL> <REMOTE>\n", .{}) catch {};
+    w.interface.print("usage: navigit diff <LOCAL> <REMOTE>\n", .{}) catch {};
     w.interface.flush() catch {};
 }
 

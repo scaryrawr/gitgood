@@ -13,7 +13,7 @@ pub fn run(allocator: std.mem.Allocator, args: []const []const u8) noreturn {
     }
 
     if (args.len != 1) {
-        exec_mod.fatal("usage: gitgood editor <file>", .{});
+        exec_mod.fatal("usage: navigit editor <file>", .{});
     }
 
     const file = args[0];
@@ -35,6 +35,6 @@ pub fn run(allocator: std.mem.Allocator, args: []const []const u8) noreturn {
 fn printUsage() void {
     var buf: [4096]u8 = undefined;
     var w = std.fs.File.stdout().writer(&buf);
-    w.interface.print("usage: gitgood editor <file>\n", .{}) catch {};
+    w.interface.print("usage: navigit editor <file>\n", .{}) catch {};
     w.interface.flush() catch {};
 }

@@ -1,4 +1,4 @@
-//! Environment detection for gitgood.
+//! Environment detection for navigit.
 //!
 //! Detects whether the user is running inside VS Code's integrated terminal
 //! or a standalone terminal, and resolves which editor to launch for diffs.

@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**gitgood** is a context-aware git tool dispatcher written in Zig. It detects whether the user is inside a VS Code integrated terminal (Stable or Insiders) or a standalone terminal, then dispatches `editor`, `diff`, and `merge` subcommands to the appropriate tool (`code`, `code-insiders`, or `$EDITOR`/`vi`).
+**navigit** is a context-aware git tool dispatcher written in Zig. It detects whether the user is inside a VS Code integrated terminal (Stable or Insiders) or a standalone terminal, then dispatches `editor`, `diff`, and `merge` subcommands to the appropriate tool (`code`, `code-insiders`, or `$EDITOR`/`vi`).
 
 ### Architecture
 

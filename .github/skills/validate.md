@@ -1,6 +1,6 @@
 ---
 name: validate
-description: Runs the full build, test, and format check pipeline for gitgood.
+description: Runs the full build, test, and format check pipeline for navigit.
 ---
 
 # Validate Skill

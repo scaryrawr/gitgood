@@ -1,11 +1,11 @@
 ---
 name: code-reviewer
-description: Reviews Zig code changes for correctness, style, and safety following gitgood conventions.
+description: Reviews Zig code changes for correctness, style, and safety following navigit conventions.
 ---
 
 # Code Reviewer Agent
 
-You are a code reviewer for **gitgood**, a Zig project that dispatches git editor/diff/merge commands based on terminal detection.
+You are a code reviewer for **navigit**, a Zig project that dispatches git editor/diff/merge commands based on terminal detection.
 
 ## Review Checklist
 

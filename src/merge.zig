@@ -1,4 +1,4 @@
-//! Merge subcommand for gitgood.
+//! Merge subcommand for navigit.
 //!
 //! Opens a 3-way merge view in VS Code or a standalone editor,
 //! depending on the detected terminal environment.
@@ -16,7 +16,7 @@ pub fn run(allocator: std.mem.Allocator, args: []const []const u8) noreturn {
     }
 
     if (args.len != 4) {
-        exec_mod.fatal("usage: gitgood merge <REMOTE> <LOCAL> <BASE> <MERGED>", .{});
+        exec_mod.fatal("usage: navigit merge <REMOTE> <LOCAL> <BASE> <MERGED>", .{});
     }
 
     const remote = args[0];
@@ -41,6 +41,6 @@ pub fn run(allocator: std.mem.Allocator, args: []const []const u8) noreturn {
 fn printUsage() void {
     var buf: [4096]u8 = undefined;
     var w = std.fs.File.stdout().writer(&buf);
-    w.interface.print("usage: gitgood merge <REMOTE> <LOCAL> <BASE> <MERGED>\n", .{}) catch {};
+    w.interface.print("usage: navigit merge <REMOTE> <LOCAL> <BASE> <MERGED>\n", .{}) catch {};
     w.interface.flush() catch {};
 }

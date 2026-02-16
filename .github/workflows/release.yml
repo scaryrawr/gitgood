@@ -55,12 +55,12 @@ jobs:
         run: |
           set -euo pipefail
           version="${GITHUB_REF_NAME}"
-          artifact="gitgood-${version}-${{ matrix.target.platform }}"
+          artifact="navigit-${version}-${{ matrix.target.platform }}"
           stage_dir="dist/${artifact}"
 
           zig build -Dtarget=${{ matrix.target.triple }} -Doptimize=ReleaseSafe
           mkdir -p "${stage_dir}"
-          cp "zig-out/bin/gitgood${{ matrix.target.exe_ext }}" "${stage_dir}/gitgood${{ matrix.target.exe_ext }}"
+          cp "zig-out/bin/navigit${{ matrix.target.exe_ext }}" "${stage_dir}/navigit${{ matrix.target.exe_ext }}"
 
           if [ "${{ matrix.target.archive_ext }}" = "zip" ]; then
             (cd dist && zip -r "${artifact}.zip" "${artifact}")
@@ -93,7 +93,7 @@ jobs:
         run: |
           set -euo pipefail
           cd dist
-          sha256sum *.tar.gz *.zip > "gitgood-${GITHUB_REF_NAME}-sha256.txt"
+          sha256sum *.tar.gz *.zip > "navigit-${GITHUB_REF_NAME}-sha256.txt"
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
@@ -101,4 +101,4 @@ jobs:
           files: |
             dist/*.tar.gz
             dist/*.zip
-            dist/gitgood-${{ github.ref_name }}-sha256.txt
+            dist/navigit-${{ github.ref_name }}-sha256.txt

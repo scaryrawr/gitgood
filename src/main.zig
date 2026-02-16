@@ -1,4 +1,4 @@
-//! gitgood — context-aware git tool dispatcher.
+//! navigit — context-aware git tool dispatcher.
 //!
 //! Parses the first positional argument as a subcommand (`editor`, `diff`,
 //! `merge`) and dispatches to the corresponding module.
@@ -67,7 +67,7 @@ fn handleHelpCommand(args: []const []const u8) void {
         return;
     }
     if (args.len != 1) {
-        exec_mod.fatal("usage: gitgood help [editor|diff|merge|setup-git]", .{});
+        exec_mod.fatal("usage: navigit help [editor|diff|merge|setup-git]", .{});
     }
 
     const topic = parseHelpTopic(args[0]) orelse exec_mod.fatal("invalid help topic: {s}", .{args[0]});
@@ -84,14 +84,14 @@ fn parseHelpTopic(arg: []const u8) ?HelpTopic {
 
 fn globalHelpText() []const u8 {
     return 
-    \\gitgood — context-aware git tool dispatcher
+    \\navigit — context-aware git tool dispatcher
     \\
     \\Usage:
-    \\    gitgood editor <file>
-    \\    gitgood diff <LOCAL> <REMOTE>
-    \\    gitgood merge <REMOTE> <LOCAL> <BASE> <MERGED>
-    \\    gitgood setup-git
-    \\    gitgood help [editor|diff|merge|setup-git]
+    \\    navigit editor <file>
+    \\    navigit diff <LOCAL> <REMOTE>
+    \\    navigit merge <REMOTE> <LOCAL> <BASE> <MERGED>
+    \\    navigit setup-git
+    \\    navigit help [editor|diff|merge|setup-git]
     \\
     \\Automatically detects VS Code integrated terminal and dispatches
     \\to the appropriate editor or tool.
@@ -102,27 +102,27 @@ fn globalHelpText() []const u8 {
 fn commandHelpText(topic: HelpTopic) []const u8 {
     return switch (topic) {
         .editor =>
-        \\Usage: gitgood editor <file>
+        \\Usage: navigit editor <file>
         \\
         \\Open a file in VS Code (or configured standalone editor).
         \\
         ,
         .diff =>
-        \\Usage: gitgood diff <LOCAL> <REMOTE>
+        \\Usage: navigit diff <LOCAL> <REMOTE>
         \\
         \\Open a VS Code visual diff, or run git diff in standalone terminals.
         \\
         ,
         .merge =>
-        \\Usage: gitgood merge <REMOTE> <LOCAL> <BASE> <MERGED>
+        \\Usage: navigit merge <REMOTE> <LOCAL> <BASE> <MERGED>
         \\
         \\Open a 3-way merge view and write the result to MERGED.
         \\
         ,
         .setup_git =>
-        \\Usage: gitgood setup-git
+        \\Usage: navigit setup-git
         \\
-        \\Configure global git settings to use gitgood for editor, diff, and merge.
+        \\Configure global git settings to use navigit for editor, diff, and merge.
         \\
         ,
     };
@@ -167,14 +167,14 @@ test "parseHelpTopic supports known topics and rejects invalid target" {
 test "globalHelpText includes help command usage line" {
     const text = globalHelpText();
     try std.testing.expect(std.mem.indexOf(u8, text, "Usage:") != null);
-    try std.testing.expect(std.mem.indexOf(u8, text, "gitgood help [editor|diff|merge|setup-git]") != null);
+    try std.testing.expect(std.mem.indexOf(u8, text, "navigit help [editor|diff|merge|setup-git]") != null);
 }
 
 test "commandHelpText includes usage for each subcommand" {
-    try std.testing.expect(std.mem.indexOf(u8, commandHelpText(.editor), "Usage: gitgood editor <file>") != null);
-    try std.testing.expect(std.mem.indexOf(u8, commandHelpText(.diff), "Usage: gitgood diff <LOCAL> <REMOTE>") != null);
-    try std.testing.expect(std.mem.indexOf(u8, commandHelpText(.merge), "Usage: gitgood merge <REMOTE> <LOCAL> <BASE> <MERGED>") != null);
-    try std.testing.expect(std.mem.indexOf(u8, commandHelpText(.setup_git), "Usage: gitgood setup-git") != null);
+    try std.testing.expect(std.mem.indexOf(u8, commandHelpText(.editor), "Usage: navigit editor <file>") != null);
+    try std.testing.expect(std.mem.indexOf(u8, commandHelpText(.diff), "Usage: navigit diff <LOCAL> <REMOTE>") != null);
+    try std.testing.expect(std.mem.indexOf(u8, commandHelpText(.merge), "Usage: navigit merge <REMOTE> <LOCAL> <BASE> <MERGED>") != null);
+    try std.testing.expect(std.mem.indexOf(u8, commandHelpText(.setup_git), "Usage: navigit setup-git") != null);
 }
 
 test {

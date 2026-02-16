@@ -1,15 +1,15 @@
-//! setup-git subcommand for gitgood.
+//! setup-git subcommand for navigit.
 //!
-//! Configures global git settings so git invokes gitgood for editor, diff, and merge.
+//! Configures global git settings so git invokes navigit for editor, diff, and merge.
 
 const std = @import("std");
 const exec_mod = @import("exec.zig");
 
-const CORE_EDITOR_VALUE = "gitgood editor";
-const DIFF_TOOL_VALUE = "gitgood";
-const MERGE_TOOL_VALUE = "gitgood";
-const DIFFTOOL_GITGOOD_CMD = "gitgood diff \"$LOCAL\" \"$REMOTE\"";
-const MERGETOOL_GITGOOD_CMD = "gitgood merge \"$REMOTE\" \"$LOCAL\" \"$BASE\" \"$MERGED\"";
+const CORE_EDITOR_VALUE = "navigit editor";
+const DIFF_TOOL_VALUE = "navigit";
+const MERGE_TOOL_VALUE = "navigit";
+const DIFFTOOL_NAVIGIT_CMD = "navigit diff \"$LOCAL\" \"$REMOTE\"";
+const MERGETOOL_NAVIGIT_CMD = "navigit merge \"$REMOTE\" \"$LOCAL\" \"$BASE\" \"$MERGED\"";
 
 const Summary = struct {
     created_difftool_cmd: bool = false,
@@ -23,7 +23,7 @@ pub fn run(allocator: std.mem.Allocator, args: []const []const u8) noreturn {
     }
 
     if (args.len != 0) {
-        exec_mod.fatal("usage: gitgood setup-git", .{});
+        exec_mod.fatal("usage: navigit setup-git", .{});
     }
 
     const summary = setupGlobalGitConfig(allocator);
@@ -38,13 +38,13 @@ fn setupGlobalGitConfig(allocator: std.mem.Allocator) Summary {
 
     var summary: Summary = .{};
 
-    if (!hasGlobalConfig(allocator, "difftool.gitgood.cmd")) {
-        setGlobalConfig(allocator, "difftool.gitgood.cmd", DIFFTOOL_GITGOOD_CMD);
+    if (!hasGlobalConfig(allocator, "difftool.navigit.cmd")) {
+        setGlobalConfig(allocator, "difftool.navigit.cmd", DIFFTOOL_NAVIGIT_CMD);
         summary.created_difftool_cmd = true;
     }
 
-    if (!hasGlobalConfig(allocator, "mergetool.gitgood.cmd")) {
-        setGlobalConfig(allocator, "mergetool.gitgood.cmd", MERGETOOL_GITGOOD_CMD);
+    if (!hasGlobalConfig(allocator, "mergetool.navigit.cmd")) {
+        setGlobalConfig(allocator, "mergetool.navigit.cmd", MERGETOOL_NAVIGIT_CMD);
         summary.created_mergetool_cmd = true;
     }
 
@@ -103,13 +103,13 @@ fn buildGetArgv(key: []const u8, argv_buf: *[5][]const u8) []const []const u8 {
 
 fn createdSummaryText(summary: Summary) []const u8 {
     if (summary.created_difftool_cmd and summary.created_mergetool_cmd) {
-        return "created: difftool.gitgood.cmd, mergetool.gitgood.cmd\n";
+        return "created: difftool.navigit.cmd, mergetool.navigit.cmd\n";
     }
     if (summary.created_difftool_cmd) {
-        return "created: difftool.gitgood.cmd\n";
+        return "created: difftool.navigit.cmd\n";
     }
     if (summary.created_mergetool_cmd) {
-        return "created: mergetool.gitgood.cmd\n";
+        return "created: mergetool.navigit.cmd\n";
     }
     return "created: none (existing tool command definitions kept)\n";
 }
@@ -125,33 +125,33 @@ fn printSummary(summary: Summary) void {
 fn printUsage() void {
     var buf: [4096]u8 = undefined;
     var w = std.fs.File.stdout().writer(&buf);
-    w.interface.print("usage: gitgood setup-git\n", .{}) catch {};
+    w.interface.print("usage: navigit setup-git\n", .{}) catch {};
     w.interface.flush() catch {};
 }
 
 test "buildSetArgv uses git config --global key value" {
     var argv_buf: [5][]const u8 = undefined;
-    const argv = buildSetArgv("core.editor", "gitgood editor", &argv_buf);
+    const argv = buildSetArgv("core.editor", "navigit editor", &argv_buf);
     try std.testing.expectEqualStrings("git", argv[0]);
     try std.testing.expectEqualStrings("config", argv[1]);
     try std.testing.expectEqualStrings("--global", argv[2]);
     try std.testing.expectEqualStrings("core.editor", argv[3]);
-    try std.testing.expectEqualStrings("gitgood editor", argv[4]);
+    try std.testing.expectEqualStrings("navigit editor", argv[4]);
 }
 
 test "buildGetArgv uses git config --global --get key" {
     var argv_buf: [5][]const u8 = undefined;
-    const argv = buildGetArgv("difftool.gitgood.cmd", &argv_buf);
+    const argv = buildGetArgv("difftool.navigit.cmd", &argv_buf);
     try std.testing.expectEqualStrings("git", argv[0]);
     try std.testing.expectEqualStrings("config", argv[1]);
     try std.testing.expectEqualStrings("--global", argv[2]);
     try std.testing.expectEqualStrings("--get", argv[3]);
-    try std.testing.expectEqualStrings("difftool.gitgood.cmd", argv[4]);
+    try std.testing.expectEqualStrings("difftool.navigit.cmd", argv[4]);
 }
 
 test "generated tool command strings preserve git placeholders" {
-    try std.testing.expectEqualStrings("gitgood diff \"$LOCAL\" \"$REMOTE\"", DIFFTOOL_GITGOOD_CMD);
-    try std.testing.expectEqualStrings("gitgood merge \"$REMOTE\" \"$LOCAL\" \"$BASE\" \"$MERGED\"", MERGETOOL_GITGOOD_CMD);
+    try std.testing.expectEqualStrings("navigit diff \"$LOCAL\" \"$REMOTE\"", DIFFTOOL_NAVIGIT_CMD);
+    try std.testing.expectEqualStrings("navigit merge \"$REMOTE\" \"$LOCAL\" \"$BASE\" \"$MERGED\"", MERGETOOL_NAVIGIT_CMD);
 }
 
 test "createdSummaryText reports no created definitions" {
@@ -164,5 +164,5 @@ test "createdSummaryText reports both created definitions" {
         .created_difftool_cmd = true,
         .created_mergetool_cmd = true,
     };
-    try std.testing.expectEqualStrings("created: difftool.gitgood.cmd, mergetool.gitgood.cmd\n", createdSummaryText(summary));
+    try std.testing.expectEqualStrings("created: difftool.navigit.cmd, mergetool.navigit.cmd\n", createdSummaryText(summary));
 }

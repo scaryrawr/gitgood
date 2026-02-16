@@ -1,6 +1,6 @@
-# gitgood
+# navigit
 
-`gitgood` is a context-aware Git tool dispatcher written in Zig.
+`navigit` is a context-aware Git tool dispatcher written in Zig.
 
 It detects whether you’re running inside a VS Code integrated terminal and routes common Git “tool” entrypoints (editor, difftool, mergetool) to:
 
@@ -23,7 +23,7 @@ Build and install into the repo’s default prefix (`zig-out/`):
 zig build -Doptimize=ReleaseSafe
 
 # binary will be at:
-#   ./zig-out/bin/gitgood
+#   ./zig-out/bin/navigit
 ```
 
 Optionally install to a custom prefix (example: `~/.local/bin`):
@@ -32,33 +32,33 @@ Optionally install to a custom prefix (example: `~/.local/bin`):
 zig build -Doptimize=ReleaseSafe -p ~/.local install
 ```
 
-Then configure Git to use `gitgood` globally:
+Then configure Git to use `navigit` globally:
 
 ```bash
-gitgood setup-git
+navigit setup-git
 ```
 
 After that:
 
-- `git commit` will use `gitgood editor ...` (which opens VS Code in the VS Code terminal, otherwise `$EDITOR`)
-- `git difftool` will use `gitgood diff ...`
-- `git mergetool` will use `gitgood merge ...`
+- `git commit` will use `navigit editor ...` (which opens VS Code in the VS Code terminal, otherwise `$EDITOR`)
+- `git difftool` will use `navigit diff ...`
+- `git mergetool` will use `navigit merge ...`
 
 ## Usage
 
 ```text
-gitgood editor <file>
-gitgood diff <LOCAL> <REMOTE>
-gitgood merge <REMOTE> <LOCAL> <BASE> <MERGED>
-gitgood setup-git
-gitgood help [editor|diff|merge|setup-git]
+navigit editor <file>
+navigit diff <LOCAL> <REMOTE>
+navigit merge <REMOTE> <LOCAL> <BASE> <MERGED>
+navigit setup-git
+navigit help [editor|diff|merge|setup-git]
 ```
 
 ## Configuration
 
 ### 1) Standalone editor selection
 
-When you’re not in a VS Code integrated terminal, `gitgood` uses:
+When you’re not in a VS Code integrated terminal, `navigit` uses:
 
 1. `$EDITOR`
 2. `$VISUAL`
@@ -72,18 +72,18 @@ Example:
 export EDITOR=vim
 ```
 
-### 2) Git configuration (`gitgood setup-git`)
+### 2) Git configuration (`navigit setup-git`)
 
-`gitgood setup-git` applies these global Git settings:
+`navigit setup-git` applies these global Git settings:
 
-- `core.editor = gitgood editor`
-- `diff.tool = gitgood`
-- `merge.tool = gitgood`
+- `core.editor = navigit editor`
+- `diff.tool = navigit`
+- `merge.tool = navigit`
 
 And it will create these tool command definitions only if they don’t already exist:
 
-- `difftool.gitgood.cmd = gitgood diff "$LOCAL" "$REMOTE"`
-- `mergetool.gitgood.cmd = gitgood merge "$REMOTE" "$LOCAL" "$BASE" "$MERGED"`
+- `difftool.navigit.cmd = navigit diff "$LOCAL" "$REMOTE"`
+- `mergetool.navigit.cmd = navigit merge "$REMOTE" "$LOCAL" "$BASE" "$MERGED"`
 
 To inspect what was set:
 
@@ -91,8 +91,8 @@ To inspect what was set:
 git config --global --get core.editor
 git config --global --get diff.tool
 git config --global --get merge.tool
-git config --global --get difftool.gitgood.cmd
-git config --global --get mergetool.gitgood.cmd
+git config --global --get difftool.navigit.cmd
+git config --global --get mergetool.navigit.cmd
 ```
 
 To undo (example):
@@ -102,15 +102,15 @@ git config --global --unset core.editor
 git config --global --unset diff.tool
 git config --global --unset merge.tool
 # and optionally:
-git config --global --unset difftool.gitgood.cmd
-git config --global --unset mergetool.gitgood.cmd
+git config --global --unset difftool.navigit.cmd
+git config --global --unset mergetool.navigit.cmd
 ```
 
 ## How dispatch works
 
 ### Terminal detection
 
-`gitgood` detects VS Code by reading `TERM_PROGRAM`:
+`navigit` detects VS Code by reading `TERM_PROGRAM`:
 
 - `TERM_PROGRAM=vscode` → VS Code mode
 - `TERM_PROGRAM=vscode-insiders` → VS Code Insiders mode
@@ -118,7 +118,7 @@ git config --global --unset mergetool.gitgood.cmd
 
 If `TERM_PROGRAM=vscode`, it further checks whether `code-insiders` is on `PATH`; if so, it assumes Insiders.
 
-On POSIX, `gitgood` uses process replacement (`exec`); on Windows, it spawns the target process and exits with that child process’s status code.
+On POSIX, `navigit` uses process replacement (`exec`); on Windows, it spawns the target process and exits with that child process’s status code.
 
 ### Subcommands
 
