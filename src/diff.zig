@@ -1,11 +1,17 @@
 //! Diff subcommand — opens a visual diff between two files.
 
+const std = @import("std");
 const detect = @import("detect.zig");
 const exec_mod = @import("exec.zig");
 
 /// Runs the diff subcommand.
 /// `args` contains the arguments after "diff" (LOCAL and REMOTE file paths).
 pub fn run(args: []const []const u8) noreturn {
+    if (args.len == 1 and (std.mem.eql(u8, args[0], "--help") or std.mem.eql(u8, args[0], "-h"))) {
+        printUsage();
+        std.process.exit(0);
+    }
+
     if (args.len != 2) {
         exec_mod.fatal("expected 2 arguments (LOCAL, REMOTE), got {d}", .{args.len});
     }
@@ -21,4 +27,11 @@ pub fn run(args: []const []const u8) noreturn {
 
     const err = exec_mod.exec(argv);
     exec_mod.fatal("exec failed: {s}", .{@errorName(err)});
+}
+
+fn printUsage() void {
+    var buf: [4096]u8 = undefined;
+    var w = std.fs.File.stdout().writer(&buf);
+    w.interface.print("usage: gitgood diff <LOCAL> <REMOTE>\n", .{}) catch {};
+    w.interface.flush() catch {};
 }
