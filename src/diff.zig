@@ -9,7 +9,7 @@ const exec_mod = @import("exec.zig");
 
 /// Runs the diff subcommand.
 /// `args` contains the arguments after "diff" (LOCAL and REMOTE file paths).
-pub fn run(args: []const []const u8) noreturn {
+pub fn run(allocator: std.mem.Allocator, args: []const []const u8) noreturn {
     if (args.len == 1 and (std.mem.eql(u8, args[0], "--help") or std.mem.eql(u8, args[0], "-h"))) {
         printUsage();
         std.process.exit(0);
@@ -23,9 +23,9 @@ pub fn run(args: []const []const u8) noreturn {
     const remote = args[1];
 
     var argv_buf: [7][]const u8 = undefined;
-    const argv = buildArgv(detect.detectTerminal(std.heap.page_allocator), local, remote, &argv_buf);
+    const argv = buildArgv(detect.detectTerminal(allocator), local, remote, &argv_buf);
 
-    exec_mod.execOrExit(std.heap.page_allocator, argv);
+    exec_mod.execOrExit(allocator, argv);
 }
 
 fn buildArgv(term: detect.Terminal, local: []const u8, remote: []const u8, argv_buf: *[7][]const u8) []const []const u8 {

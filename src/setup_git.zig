@@ -16,7 +16,7 @@ const Summary = struct {
     created_mergetool_cmd: bool = false,
 };
 
-pub fn run(args: []const []const u8) noreturn {
+pub fn run(allocator: std.mem.Allocator, args: []const []const u8) noreturn {
     if (args.len == 1 and (std.mem.eql(u8, args[0], "--help") or std.mem.eql(u8, args[0], "-h"))) {
         printUsage();
         std.process.exit(0);
@@ -26,7 +26,7 @@ pub fn run(args: []const []const u8) noreturn {
         exec_mod.fatal("usage: gitgood setup-git", .{});
     }
 
-    const summary = setupGlobalGitConfig(std.heap.page_allocator);
+    const summary = setupGlobalGitConfig(allocator);
     printSummary(summary);
     std.process.exit(0);
 }

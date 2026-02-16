@@ -9,7 +9,7 @@ const exec_mod = @import("exec.zig");
 
 /// Runs the merge subcommand.
 /// `args` contains the arguments after "merge" (REMOTE, LOCAL, BASE, MERGED file paths).
-pub fn run(args: []const []const u8) noreturn {
+pub fn run(allocator: std.mem.Allocator, args: []const []const u8) noreturn {
     if (args.len == 1 and (std.mem.eql(u8, args[0], "--help") or std.mem.eql(u8, args[0], "-h"))) {
         printUsage();
         std.process.exit(0);
@@ -24,18 +24,18 @@ pub fn run(args: []const []const u8) noreturn {
     const base = args[2];
     const merged = args[3];
 
-    const argv: []const []const u8 = switch (detect.detectTerminal(std.heap.page_allocator)) {
+    const argv: []const []const u8 = switch (detect.detectTerminal(allocator)) {
         .vscode => &.{ "code", "--wait", "--merge", remote, local, base, merged },
         .vscode_insiders => &.{ "code-insiders", "--wait", "--merge", remote, local, base, merged },
         .standalone => blk: {
-            const editor_cmd = detect.resolveEditor(std.heap.page_allocator) catch |err| {
+            const editor_cmd = detect.resolveEditor(allocator) catch |err| {
                 exec_mod.fatal("failed to resolve editor: {s}", .{@errorName(err)});
             };
             break :blk &.{ editor_cmd, "-d", merged, local, remote };
         },
     };
 
-    exec_mod.execOrExit(std.heap.page_allocator, argv);
+    exec_mod.execOrExit(allocator, argv);
 }
 
 fn printUsage() void {

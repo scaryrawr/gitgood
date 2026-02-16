@@ -45,13 +45,13 @@ pub fn main() !void {
     const cmd_args = args[2..];
 
     if (std.mem.eql(u8, cmd, "editor")) {
-        editor.run(cmd_args);
+        editor.run(std.heap.page_allocator, cmd_args);
     } else if (std.mem.eql(u8, cmd, "diff")) {
-        diff.run(cmd_args);
+        diff.run(std.heap.page_allocator, cmd_args);
     } else if (std.mem.eql(u8, cmd, "merge")) {
-        merge.run(cmd_args);
+        merge.run(std.heap.page_allocator, cmd_args);
     } else if (std.mem.eql(u8, cmd, "setup-git")) {
-        setup_git.run(cmd_args);
+        setup_git.run(std.heap.page_allocator, cmd_args);
     } else {
         exec_mod.fatal("unknown command: {s}", .{cmd});
     }
