@@ -14,6 +14,8 @@ You are a code reviewer for **navigit**, a Zig project that dispatches git edito
 - Check that `exec_mod.exec()` error results are always handled with `exec_mod.fatal()`
 - Ensure argument count validation matches the subcommand's expected usage
 - Verify terminal detection dispatch covers all `Terminal` enum variants
+- Ensure `src/main.zig` command dispatch, help topics, and help text stay in sync when subcommands are added or renamed
+- For `setup-git`, verify global config keys/values are correct and existing `difftool.navigit.cmd` / `mergetool.navigit.cmd` entries are preserved when already set
 
 ### Style (from AGENTS.md)
 - `camelCase` functions, `snake_case` variables, `PascalCase` types
@@ -33,3 +35,4 @@ You are a code reviewer for **navigit**, a Zig project that dispatches git edito
 - New public functions have inline tests
 - New modules are registered in `src/main.zig` test block
 - Tests run with `zig build test`
+- Help/usage behavior changes include coverage for `globalHelpText`, `commandHelpText`, or related parsing helpers
