@@ -23,9 +23,39 @@ pub fn run(allocator: std.mem.Allocator, args: []const []const u8) noreturn {
     const remote = args[1];
 
     var argv_buf: [7][]const u8 = undefined;
-    const argv = buildArgv(detect.detectTerminal(allocator), local, remote, &argv_buf);
+    const term = detect.detectTerminal(allocator);
+    const argv = buildArgv(term, local, remote, &argv_buf);
 
-    exec_mod.execOrExit(allocator, argv);
+    switch (term) {
+        .standalone => execStandaloneDiff(allocator, argv),
+        .vscode, .vscode_insiders => exec_mod.execOrExit(allocator, argv),
+    }
+}
+
+// Spawns `git diff` with GIT_EXTERNAL_DIFF removed from the environment.
+// When git difftool invokes navigit, it sets GIT_EXTERNAL_DIFF which would
+// cause the child `git diff` to re-invoke the difftool helper in an
+// infinite loop. Using Child with a scrubbed env map breaks the cycle.
+fn execStandaloneDiff(allocator: std.mem.Allocator, argv: []const []const u8) noreturn {
+    var env_map = std.process.getEnvMap(allocator) catch |err|
+        exec_mod.fatal("failed to read environment: {s}", .{@errorName(err)});
+
+    _ = env_map.remove("GIT_EXTERNAL_DIFF");
+
+    var child: std.process.Child = .init(argv, allocator);
+    child.env_map = &env_map;
+    child.stdin_behavior = .Inherit;
+    child.stdout_behavior = .Inherit;
+    child.stderr_behavior = .Inherit;
+
+    const term = child.spawnAndWait() catch |err|
+        exec_mod.fatal("exec failed: {s}", .{@errorName(err)});
+
+    switch (term) {
+        .Exited => |code| std.process.exit(code),
+        .Signal => |sig| std.process.exit(@truncate(128 + sig)),
+        else => exec_mod.fatal("process did not exit normally", .{}),
+    }
 }
 
 fn buildArgv(term: detect.Terminal, local: []const u8, remote: []const u8, argv_buf: *[7][]const u8) []const []const u8 {
